@@ -36,10 +36,8 @@ public class PharmacienRessource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getOrdonnancesByPharmacien(@PathParam("idPharmacien") Long idPharmacien) {
-       
             List<Ordonnance> ordonnances = pharmacienService.consulterOrdonnancesReçues(idPharmacien);
             return Response.ok(ordonnances).build();
-       
     } 
     
     @GET

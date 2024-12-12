@@ -1,6 +1,8 @@
 package pharmacie;
 
 import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -15,9 +17,7 @@ import metier.entities.Commande;
 import metier.entities.Ordonnance;
 import java.util.List;
 
-/**
- * Endpoint de gestion des ordonnances et des commandes pour les pharmaciens
- */
+
 @Path("/pharmacien")
 public class PharmacienRessource {
     
@@ -28,24 +28,38 @@ public class PharmacienRessource {
 
     public PharmacienRessource() {
 		super();
-		// TODO Auto-generated constructor stub
 		pharmacienService = new PharmacienImpl();
 	}
     
     @GET
     @Path("/ordonnances/{idPharmacien}")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response getOrdonnancesByPharmacien(@PathParam("idPharmacien") Long idPharmacien) {
        
             List<Ordonnance> ordonnances = pharmacienService.consulterOrdonnancesReçues(idPharmacien);
             return Response.ok(ordonnances).build();
        
     } 
+    
+    @GET
+    @Path("/commandes/{idPharmacien}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCommandes(@PathParam("idPharmacien") Long idPharmacien) {
+        try {
+            List<Commande> commandes = pharmacienService.consulterCommandes(idPharmacien);
+            return Response.ok(commandes).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Erreur lors de la récupération des commandes : " + e.getMessage())
+                    .build();
+        }
+    }
 
     /**
      * Vérification d'une ordonnance
      * @param idOrdonnance Identifiant de l'ordonnance
-     * @return Ordonnance si trouvée, erreur sinon
+     * @return Ordonnance si trouvée, erreur sinon*/
     
     @GET
     @Path("/ordonnance/{idOrdonnance}")
@@ -64,7 +78,7 @@ public class PharmacienRessource {
                     .entity("Erreur lors de la vérification de l'ordonnance : " + e.getMessage())
                     .build();
         }
-    } */
+    } 
 
     /**
      * Acceptation d'une ordonnance
@@ -143,19 +157,7 @@ public class PharmacienRessource {
      * @param idPharmacien Identifiant du pharmacien
      * @return Liste des commandes*/
      
-    @GET
-    @Path("/commandes/{idPharmacien}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getCommandes(@PathParam("idPharmacien") Long idPharmacien) {
-        try {
-            List<Commande> commandes = pharmacienService.consulterCommandes(idPharmacien);
-            return Response.ok(commandes).build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erreur lors de la récupération des commandes : " + e.getMessage())
-                    .build();
-        }
-    }
+    
 
     /**
      * Endpoint de test de connexion

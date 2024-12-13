@@ -23,9 +23,6 @@ public class PharmacienRessource {
     
     @EJB
     private IPharmacienLocal pharmacienService;
-    
-    
-
     public PharmacienRessource() {
 		super();
 		pharmacienService = new PharmacienImpl();

@@ -5,6 +5,7 @@ import javax.ejb.Stateless;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -35,7 +36,7 @@ public class PharmacienRessource {
     public Response getOrdonnancesByPharmacien(@PathParam("idPharmacien") Long idPharmacien) {
             List<Ordonnance> ordonnances = pharmacienService.consulterOrdonnancesReçues(idPharmacien);
             return Response.ok(ordonnances).build();
-    } 
+    }
     
     @GET
     @Path("/commandes/{idPharmacien}")
@@ -54,7 +55,8 @@ public class PharmacienRessource {
     /**
      * Vérification d'une ordonnance
      * @param idOrdonnance Identifiant de l'ordonnance
-     * @return Ordonnance si trouvée, erreur sinon*/
+     * @return Ordonnance si trouvée, erreur sinon 
+     * **/
     
     @GET
     @Path("/ordonnance/{idOrdonnance}")
@@ -74,6 +76,21 @@ public class PharmacienRessource {
                     .build();
         }
     } 
+    
+    
+    @GET
+    @Path("/commande/{idCommande}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response verifierCommande (@PathParam("idCommande") Long idCommande) {
+    	Commande commande = pharmacienService.verifierCommande(idCommande);
+    	 if (commande == null) {
+             return Response.status(Response.Status.NOT_FOUND)
+                     .entity("Ordonnance non trouvée")
+                     .build();
+         }
+         return Response.ok(commande).build();
+    }
+    
 
     /**
      * Acceptation d'une ordonnance
@@ -81,71 +98,75 @@ public class PharmacienRessource {
      * @param commStatus Statut de la commande
      * @param ordoStatus Statut de l'ordonnance
      * @param montantTotal Montant total de la commande
-     * @return Message de confirmation
+     * @return Message de confirmation  */
    
     @POST
     @Path("/ordonnance/{idOrdonnance}/accepter")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)		
     public Response accepterOrdonnance(
             @PathParam("idOrdonnance") Long idOrdonnance,
             @QueryParam("commStatus") String commStatus,
-            @QueryParam("ordoStatus") String ordoStatus,
             @QueryParam("montantTotal") Double montantTotal) {
         try {
-            pharmacienService.accepterOrdonnance(idOrdonnance, commStatus, ordoStatus, montantTotal);
-            return Response.ok("Ordonnance acceptée avec succès").build();
+        	Commande commande  = pharmacienService.accepterOrdonnance(idOrdonnance, commStatus,  montantTotal);
+            return Response.ok(commande).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Erreur lors de l'acceptation de l'ordonnance : " + e.getMessage())
                     .build();
         }
-    }  */
+    }
 
     /**
      * Rejet d'une ordonnance
      * @param idOrdonnance Identifiant de l'ordonnance
      * @param status Statut de l'ordonnance
-     * @return Message de confirmation
+     * @return Message de confirmation*/
      
-    @POST
+    @PUT
     @Path("/ordonnance/{idOrdonnance}/rejeter")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response rejeterOrdonnance(
-            @PathParam("idOrdonnance") Long idOrdonnance,
-            @QueryParam("status") String status) {
+    public Response rejeterOrdonnance( @PathParam("idOrdonnance") Long idOrdonnance) {
         try {
-            pharmacienService.rejeterOrdonnance(idOrdonnance, status);
+            pharmacienService.rejeterOrdonnance(idOrdonnance);
             return Response.ok("Ordonnance rejetée avec succès").build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Erreur lors du rejet de l'ordonnance : " + e.getMessage())
                     .build();
         }
-    }*/
+    }
+    
+    @PUT
+    @Path("/commande/{idCommande}/changer")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response changerStatusCommande(@PathParam("idCommande") Long idCommande ,@QueryParam("commStatus") String commStatus) {
+    	Commande commande =pharmacienService.changerStatusCommande(idCommande, commStatus);
+    	return Response.ok(commande).build();
+    }
+    
+    
 
     /**
      * Notification du patient sur l'état de sa commande
      * @param idCommande Identifiant de la commande
      * @param status Statut de la commande
      * @param montantTotal Montant total de la commande
-     * @return Message de confirmation
+     * @return Message de confirmation*/
     
     @POST
     @Path("/commande/{idCommande}/notifier")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response notifierPatient(
-            @PathParam("idCommande") Long idCommande,
-            @QueryParam("status") String status,
-            @QueryParam("montantTotal") Double montantTotal) {
+            @PathParam("idCommande") Long idCommande) {
         try {
-            pharmacienService.notifierPatientEtatCommande(idCommande, status, montantTotal);
+            pharmacienService.notifierParEmail(idCommande);
             return Response.ok("Patient notifié avec succès").build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Erreur lors de la notification : " + e.getMessage())
                     .build();
         }
-    } */
+    } 
 
     /**
      * Récupération des commandes pour un pharmacien

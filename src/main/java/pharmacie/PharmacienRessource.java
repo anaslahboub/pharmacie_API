@@ -93,9 +93,10 @@ public class PharmacienRessource {
     @POST
     @Path("/ordonnance/{idOrdonnance}/accepter")
     @Produces(MediaType.APPLICATION_JSON)		
-    public void accepterOrdonnance(
+    public Response accepterOrdonnance(
             @PathParam("idOrdonnance") Long idOrdonnance, @QueryParam("commStatus") String commStatus, @QueryParam("montantTotal") Double montantTotal) {
-        	pharmacienService.accepterOrdonnance(idOrdonnance, commStatus,  montantTotal);
+        	Commande commande =pharmacienService.accepterOrdonnance(idOrdonnance, commStatus,  montantTotal);
+        	return Response.ok(commande).build();
     }
   
     

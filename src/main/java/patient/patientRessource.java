@@ -161,7 +161,7 @@ public class patientRessource {
                             pharmacien.getLocalistion().getNomMap(),  // nomMap
                             pharmacien.getLocalistion().getLongitude(), // longitude
                             pharmacien.getLocalistion().getLatitude(),  // latitude
-                            pharmacien.isActive()
+                            pharmacien.getIsActive()
                     ))
                     .collect(Collectors.toList());
 

@@ -137,6 +137,8 @@ public class PharmacienRessource {
     @Produces(MediaType.APPLICATION_JSON)
     public Long login(LoginRequest loginRequest) {
         Pharmacien pharmacien = pharmacienService.loginPharmacie(loginRequest.email, loginRequest.password);
+        
+        pharmacien.setIsActive("active");
       
             return pharmacien.getId();
     }

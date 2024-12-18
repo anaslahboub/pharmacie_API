@@ -72,9 +72,9 @@ public class AdminRessource {
 	@Path("/pharmacie/{id}/changer")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response changerstatus_pharmacien(@PathParam( "id" ) Long id ) {
+	public void changerstatus_pharmacien(@PathParam( "id" ) Long id ) {
 		Pharmacien Pharmacien = adminservice.changerPartnerStatusPharmacien(id);
-		return Response.ok(Pharmacien).build();
+		
 	}
 	@GET
 	@Path("/pharmaciees/partners") // Ajustement pour éviter toute ambiguïté

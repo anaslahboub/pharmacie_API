@@ -3,6 +3,7 @@ package admin;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -117,4 +118,13 @@ public class AdminRessource {
 		int nbrpharmaciesnp = adminservice.calculpharmacienonpartenaire();
 		return Response.ok(nbrpharmaciesnp).build();
 	}
+	
+	@DELETE
+    @Path("/deleteuser/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void deleteuser(@PathParam( "id" ) Long id ) {
+         adminservice.deleteUser(id);
+    }
+
 }

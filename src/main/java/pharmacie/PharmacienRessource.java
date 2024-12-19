@@ -344,7 +344,12 @@ public class PharmacienRessource {
     }
     
 
-    
+    @PUT
+    @Path("/pharmacie/{id}/deconnecter")
+    public void deconnection(@PathParam("id") Long id) {
+    	pharmacienService.deconnecter(id);
+    	
+    }
     
     
     @GET

@@ -1,39 +1,31 @@
 package patient;
 
-import java.io.FileOutputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Date;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
-import javax.persistence.TypedQuery;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
-
 import metier.IPatientLocal;
-import metier.IPharmacienLocal;
 import metier.entities.Commande;
 import metier.entities.Ordonnance;
 import metier.entities.Patient;
 import metier.entities.Pharmacien;
-import metier.entities.Utilisateur;
 
 @Path("/patient")
 @RequestScoped
@@ -45,11 +37,11 @@ public class patientRessource {
     @POST
     @Path("/CreateAccount")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createPatient(PatientDTO patientDTO) {
+    public Response createPatient(Patient patientDTO) {
         try {
         	
           
-            // Vérifier si l'email existe déjà
+            // Vérifions si l'email existe déjà
             boolean emailExists = patientMetier.emailExists(patientDTO.getEmail());
             if (emailExists) {
                 return Response.status(Response.Status.BAD_REQUEST)
@@ -57,11 +49,11 @@ public class patientRessource {
                         .build();
             }
 
-            // Créer un objet Patient à partir du DTO
-            Patient patient = new Patient(patientDTO.getNom(),patientDTO.getPrenom(),patientDTO.getEmail(),patientDTO.getTelephone(),patientDTO.getPassword(),"patient",patientDTO.getLocalisation());
+            // On Crée un objet Patient à partir du DTO
+            Patient patient = new Patient(patientDTO.getNom(),patientDTO.getPrenom(),patientDTO.getEmail(),patientDTO.getTelephone(),"patient",patientDTO.getPassword(),patientDTO.getLocalisation());
            
 
-            // Enregistrer le patient
+            // Enregistre le patient
             patientMetier.enregistrerPatient(patient);
 
             return Response.status(Response.Status.CREATED)
@@ -79,7 +71,7 @@ public class patientRessource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response login(PatientDTO patientDTO) {
-        // Vérifiez si l'authentification est réussie
+        // Vérifions si l'authentification est réussie
     	Patient patient = patientMetier.authenticatePatient(patientDTO.getEmail(), patientDTO.getPassword());
 
         if (patient != null) {
@@ -145,7 +137,7 @@ public class patientRessource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPharmacies() {
         try {
-            // Appeler la méthode métier pour récupérer toutes les pharmacies
+            // Appelons la méthode métier pour récupérer toutes les pharmacies
             List<Pharmacien> pharmacies = patientMetier.getAllPharmacies();
 
             // Vérifier si des pharmacies sont disponibles
@@ -155,18 +147,10 @@ public class patientRessource {
                         .build();
             }
 
-            List<PharmacienDTO> pharmaciesDTO = pharmacies.stream()
-                    .map(pharmacien -> new PharmacienDTO(
-                            pharmacien.getId(),                        // id
-                            pharmacien.getLocalistion().getNomMap(),  // nomMap
-                            pharmacien.getLocalistion().getLongitude(), // longitude
-                            pharmacien.getLocalistion().getLatitude(),  // latitude
-                            pharmacien.getIsActive()
-                    ))
-                    .collect(Collectors.toList());
+            
 
             // Retourner les pharmacies avec un statut 200 (OK)
-            return Response.ok(pharmaciesDTO).build();
+            return Response.ok(pharmacies).build();
         } catch (Exception e) {
             e.printStackTrace();
             // Gestion des erreurs internes
@@ -180,26 +164,19 @@ public class patientRessource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOrdonnances(@QueryParam("patientId") Long patientId  ) {
         try {
-            // Appeler la méthode métier pour récupérer toutes les ordonnances
+            // Appelons la méthode métier pour récupérer toutes les ordonnances
         	 List<Ordonnance> ordonnances = patientMetier.consulterOrdonnances(patientId);
 
-            // Vérifier si des ordonnances sont disponibles
+            //On Vérifie si des ordonnances sont disponibles
             if (ordonnances == null ) {
                 return Response.status(Response.Status.NO_CONTENT)
                         .entity("Aucune Ordonnance trouvée.")
                         .build();
             }
 
-            List<OrdonnanceDTO> ordonnancesDTO = ordonnances.stream()
-                    .map(ordonnance -> new OrdonnanceDTO(
-                            ordonnance.getId(),                      
-                            ordonnance.getStatut(),                     
-                            ordonnance.getDateEnvoie()                     
-                    ))
-                    .collect(Collectors.toList());
-
+          
             // Retourner les ordonnances avec un statut 200 (OK)
-            return Response.ok(ordonnancesDTO).build();
+            return Response.ok(ordonnances).build();
         } catch (Exception e) {
             e.printStackTrace();
             // Gestion des erreurs internes
@@ -220,18 +197,8 @@ public class patientRessource {
                     .build();
         }
 
-    	OrdonnanceDTO ordonnancesDTO = 
-          new OrdonnanceDTO(
-                        ordonnance.getId(),                         // id
-                        ordonnance.getPhoto(),                      // photo
-                        ordonnance.getStatut(),                     // statut
-                        ordonnance.getCommentaire(),                // commentaire
-                        ordonnance.getDateEnvoie(),                       // date
-                        ordonnance.getPharmacien().getNom()         // pharmacienNom
-                );
-
         // Retourner les ordonnances avec un statut 200 (OK)
-        return Response.ok(ordonnancesDTO).build();
+        return Response.ok(ordonnance).build();
     } catch (Exception e) {
         e.printStackTrace();
         // Gestion des erreurs internes
@@ -258,14 +225,8 @@ public class patientRessource {
                         .build();
             }
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("nom", patient.getNom());
-            response.put("prenom", patient.getPrenom());
-            response.put("telephone", patient.getTelephone());
-            response.put("email", patient.getEmail());
-            response.put("password", patient.getPassword());
-
-            return Response.ok(response).build();
+          
+            return Response.ok(patient).build();
         } catch (Exception e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -273,24 +234,20 @@ public class patientRessource {
                     .build();
         }
     }
-    @POST
+    @PUT
     @Path("/profilUpdate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updatePatientProfil(PatientDTO patientDTO,
+    public void updatePatientProfil(PatientDTO patientDTO,
     		@QueryParam("patientId") Long patientId) {
         try {
             if (patientDTO == null || patientDTO.getEmail() == null|| patientDTO.getPassword() == null) {
-                return Response.status(Response.Status.BAD_REQUEST)
-                        .entity("Les données du profil sont invalides.")
-                        .build();
+                return ;
             }
 
             Patient patient = patientMetier.findPatient(patientId);
             if (patient == null) {
-                return Response.status(Response.Status.NOT_FOUND)
-                        .entity("Aucun patient correspondant trouvé.")
-                        .build();
+                return ;
             }
 
             // Mise à jour des données
@@ -302,12 +259,10 @@ public class patientRessource {
 
             patientMetier.modifierPatient(patient);
 
-            return Response.ok("Profil modifié avec succès.").build();
+            return ;
         } catch (Exception e) {
             e.printStackTrace();
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erreur lors de la mise à jour du profil.")
-                    .build();
+            return ;
         }
     }
     @GET
@@ -352,7 +307,7 @@ public class patientRessource {
     public Response consulterHistoriqueCommandes(@PathParam("id_patient") Long id_patient) {
     	List<Commande> commandes = patientMetier.consulterHistoriqueCommandes(id_patient);
     	if (commandes ==null) {
-    		return Response.ok("erreur dextraction de commandes ").build();
+    		return Response.ok("erreur d'extraction des commandes ").build();
     	}
     	return Response.ok(commandes).build();
     	
@@ -365,7 +320,7 @@ public class patientRessource {
     public Response consulterUneCommande(@PathParam("id_commande") Long id_commande) {
     	Commande commande = patientMetier.consulterUneCommande(id_commande);
     	if (commande ==null) {
-    		return Response.ok("erreur dextraction de commandes ").build();
+    		return Response.status(Response.Status.NOT_FOUND).entity("erreur d'extraction de la commande ").build();
     	}
     	return Response.ok(commande).build();
     	

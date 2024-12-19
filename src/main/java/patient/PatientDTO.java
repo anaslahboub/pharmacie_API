@@ -8,6 +8,14 @@ import metier.entities.Localisation;
 public class PatientDTO {
     private String nom;
     private String prenom;
+   
+
+	private String email;
+    private String telephone;
+    private String password;
+    @Embedded
+    private Localisation localisation;
+
     public String getPrenom() {
 		return prenom;
 	}
@@ -15,13 +23,6 @@ public class PatientDTO {
 	public void setPrenom(String prenom) {
 		this.prenom = prenom;
 	}
-
-	private String email;
-    private String telephone;
-    private String password;
-
-    @Embedded
-    private Localisation localisation;
 
     // Getters et setters
     public String getNom() {
@@ -56,11 +57,14 @@ public class PatientDTO {
         this.password = password;
     }
 
-    public Localisation getLocalisation() {
-        return localisation;
-    }
+	public Localisation getLocalisation() {
+		return localisation;
+	}
 
-    public void setLocalisation(Localisation localisation) {
-        this.localisation = localisation;
-    }
+	public void setLocalisation(Localisation localisation) {
+		this.localisation = localisation;
+	}
+    
+
+    
 }

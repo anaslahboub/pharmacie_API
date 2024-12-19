@@ -33,37 +33,31 @@ public class patientRessource {
 
     @EJB
     private IPatientLocal patientMetier;
+    
+    
+   
 
     @POST
     @Path("/CreateAccount")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createPatient(Patient patientDTO) {
+    public void createPatient(PatientDTO patientDTO) {
         try {
         	
           
             // Vérifions si l'email existe déjà
             boolean emailExists = patientMetier.emailExists(patientDTO.getEmail());
             if (emailExists) {
-                return Response.status(Response.Status.BAD_REQUEST)
-                        .entity("Un compte avec cet email existe déjà.")
-                        .build();
+                return ;
             }
-
             // On Crée un objet Patient à partir du DTO
             Patient patient = new Patient(patientDTO.getNom(),patientDTO.getPrenom(),patientDTO.getEmail(),patientDTO.getTelephone(),"patient",patientDTO.getPassword(),patientDTO.getLocalisation());
-           
 
             // Enregistre le patient
             patientMetier.enregistrerPatient(patient);
-
-            return Response.status(Response.Status.CREATED)
-                    .entity("Compte créé avec succès.")
-                    .build();
+            return ;
         } catch (Exception e) {
             e.printStackTrace();
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erreur lors de la création du compte patient.")
-                    .build();
+            return ;
         }
     }
     @POST
@@ -73,9 +67,7 @@ public class patientRessource {
     public Response login(PatientDTO patientDTO) {
         // Vérifions si l'authentification est réussie
     	Patient patient = patientMetier.authenticatePatient(patientDTO.getEmail(), patientDTO.getPassword());
-
         if (patient != null) {
-
         	 Long patientId=patient.getId();
              return Response.ok(patientId).build();
         }
@@ -86,6 +78,8 @@ public class patientRessource {
                            .build();
         }
     }
+   
+
     @POST
     @Path("/NouvelleOrdonnance")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
